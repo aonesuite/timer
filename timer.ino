@@ -1,57 +1,66 @@
+#include <TimerOne.h>
+#include "TM1637.h"
+#define ON 1
+#define OFF 0
 
-#include <string.h>
+int8_t TimeDisp[] = {0x00, 0x00, 0x00, 0x00};
+unsigned char ClockPoint = 1; // 双跳灯
+unsigned char Update;
+unsigned char halfsecond = 0;
+unsigned char second;
+unsigned char minute = 0;
+unsigned char hour = 12;
 
-//Pin connected to latch pin (ST_CP) of 74HC595
-const int latchPin = 8;
 
-//Pin connected to clock pin (SH_CP) of 74HC595
-const int clockPin = 3;
-
-//Pin connected to Data in (DS) of 74HC595
-const int dataPin = 9;
-
-unsigned char CHAR_MAP[] = { 0xc0, 0xf9, 0xa4, 0xb0, 0x99, 0x92, 0x82, 0xf8, 0x80, 0x90, 0xbf, 0xff, 0x86, 0x8E };
-char CHAR_INDEX_MAP[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', ' ', 'E', 'F' };
+#define CLK 3//pins definitions for TM1637 and can be changed to other ports
+#define DIO 2
+TM1637 tm1637(CLK, DIO);
 
 void setup() {
-  //set pins to output because they are addressed in the main loop
-  pinMode(latchPin, OUTPUT);
-  pinMode(dataPin, OUTPUT);
-  pinMode(clockPin, OUTPUT);
   Serial.begin(9600);
-  Serial.println("reset");
-}
+  Serial.println("TIMER SETUP");
 
-// 点亮数码管
-void ledshow(const char* str) {
-  digitalWrite(latchPin, LOW);
-
-  int len = strlen(str);
-  int hasDot = 0;
-  for (int i = len - 1, m = 0; i >= 0; i--) {
-    char chr = str[i];
-    if (chr == '.') {
-      hasDot = 1;
-      continue;
-    }
-    int n = 0;
-    for (; n < 17; n++) {
-      if (chr == CHAR_INDEX_MAP[n])
-        break;
-    }
-    if (n != 17) {
-      unsigned char chr1 = CHAR_MAP[n];
-      if (hasDot) chr1 &= 0x7f; // 处理小数点
-      shiftOut(dataPin, clockPin, MSBFIRST, chr1);
-    }
-
-    m++;
-    hasDot = 0;
-  }
-
-  digitalWrite(latchPin, HIGH);
+  tm1637.set();
+  tm1637.init();
+  Timer1.initialize(500000);//timing for 500ms
+  Timer1.attachInterrupt(TimingISR);//declare the interrupt serve routine:TimingISR
 }
 
 void loop() {
-  ledshow("05 40.129");
+  if (Update == ON) {
+    TimeUpdate();
+    tm1637.display(TimeDisp);
+  }
+}
+
+void TimingISR() {
+  halfsecond ++;
+  Update = ON;
+  if (halfsecond == 2) {
+    second ++;
+    if (second == 60) {
+      minute ++;
+
+      Serial.println("Another minute passed.");
+
+      if (minute == 60) {
+        hour ++;
+        if (hour == 24)hour = 0;
+        minute = 0;
+      }
+      second = 0;
+    }
+    halfsecond = 0;
+  }
+  ClockPoint = (~ClockPoint) & 0x01;
+}
+
+void TimeUpdate(void) {
+  if (ClockPoint)tm1637.point(POINT_ON);
+  else tm1637.point(POINT_OFF);
+  TimeDisp[0] = minute / 10;
+  TimeDisp[1] = minute % 10;
+  TimeDisp[2] = second / 10;
+  TimeDisp[3] = second % 10;
+  Update = OFF;
 }
