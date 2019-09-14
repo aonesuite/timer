@@ -11,41 +11,48 @@ unsigned char second;
 unsigned char minute = 0;
 unsigned char hour = 12;
 
-
-#define CLK 3//pins definitions for TM1637 and can be changed to other ports
+#define CLK 3 //pins definitions for TM1637 and can be changed to other ports
 #define DIO 2
 TM1637 tm1637(CLK, DIO);
 
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   Serial.println("TIMER SETUP");
 
   tm1637.set();
   tm1637.init();
-  Timer1.initialize(500000);//timing for 500ms
-  Timer1.attachInterrupt(TimingISR);//declare the interrupt serve routine:TimingISR
+  Timer1.initialize(500000);         //timing for 500ms
+  Timer1.attachInterrupt(TimingISR); //declare the interrupt serve routine:TimingISR
 }
 
-void loop() {
-  if (Update == ON) {
+void loop()
+{
+  if (Update == ON)
+  {
     TimeUpdate();
     tm1637.display(TimeDisp);
   }
 }
 
-void TimingISR() {
-  halfsecond ++;
+void TimingISR()
+{
+  halfsecond++;
   Update = ON;
-  if (halfsecond == 2) {
-    second ++;
-    if (second == 60) {
-      minute ++;
+  if (halfsecond == 2)
+  {
+    second++;
+    if (second == 60)
+    {
+      minute++;
 
       Serial.println("Another minute passed.");
 
-      if (minute == 60) {
-        hour ++;
-        if (hour == 24)hour = 0;
+      if (minute == 60)
+      {
+        hour++;
+        if (hour == 24)
+          hour = 0;
         minute = 0;
       }
       second = 0;
@@ -55,9 +62,12 @@ void TimingISR() {
   ClockPoint = (~ClockPoint) & 0x01;
 }
 
-void TimeUpdate(void) {
-  if (ClockPoint)tm1637.point(POINT_ON);
-  else tm1637.point(POINT_OFF);
+void TimeUpdate(void)
+{
+  if (ClockPoint)
+    tm1637.point(POINT_ON);
+  else
+    tm1637.point(POINT_OFF);
   TimeDisp[0] = minute / 10;
   TimeDisp[1] = minute % 10;
   TimeDisp[2] = second / 10;
