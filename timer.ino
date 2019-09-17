@@ -12,8 +12,8 @@ unsigned char minute = 0;
 unsigned char hour = 0;
 
 // 时钟引脚， Arduino Nano 只有 2，3 引脚支持 attachInterrupt
-#define CLK 3
-#define DIO 2
+#define CLK 2
+#define DIO 3
 TM1637 tm1637(CLK, DIO);
 
 const int resetButtonPin = 4; // 重置开关按键
