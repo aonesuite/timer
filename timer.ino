@@ -21,6 +21,8 @@ const int resetButtonPin = 4; // 重置开关按键
 const int buzzPinAnalog = A0;     // 蜂鸣器
 const int vibratorPinAnalog = A1; // 震动模块
 
+const int resetButtonPinAnalog = A2; // 重置开关按键
+
 // 旋钮
 const int encoderButtonPin = 7; // 旋钮开关
 const int encoderPinA = 8;      //
@@ -60,9 +62,13 @@ void setup()
 
 void loop()
 {
+  int sensorValue = analogRead(resetButtonPinAnalog);
+  Serial.print("resetButtonPinAnalog pin: ");
+  Serial.println(sensorValue);
+
   if (IsEncoderButtonPushDown())
   {
-    Serial.println("you push button down!!!");
+    // Serial.println("you push button down!!!");
     // TODO: 切换显示模式
   }
 
@@ -71,11 +77,12 @@ void loop()
 
   // 输出 encoder value
   // TODO: 用于设置时间或报警时长
-  Serial.println(ReadEncoderValue());
+  // Serial.println(ReadEncoderValue());
 
   // 重置按钮按下时，数值归零
-  int val = digitalRead(resetButtonPin); // 读取输入值
-  if (val == HIGH)                       // 检查输入是否为高，这里高为按下
+  // int val = digitalRead(resetButtonPin); // 读取输入值
+  // if (val == HIGH)                       // 检查输入是否为高，这里高为按下
+  if (sensorValue == 7 || sensorValue == 8)
   {
     Serial.println("resetButtonPin HIGH");
     Alert(true, true);
