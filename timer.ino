@@ -17,8 +17,9 @@ unsigned char hour = 0;
 TM1637 tm1637(CLK, DIO);
 
 const int resetButtonPin = 4; // 重置开关按键
-const int buzzPin = 5;        // 蜂鸣器
-const int vibratorPin = 6;    // 震动模块
+
+const int buzzPinAnalog = A0;     // 蜂鸣器
+const int vibratorPinAnalog = A1; // 震动模块
 
 // 旋钮
 const int encoderButtonPin = 7; // 旋钮开关
@@ -39,8 +40,9 @@ void setup()
   Serial.println("TIMER SETUP");
 
   pinMode(resetButtonPin, INPUT); // 定义重置开关按键引脚为输入引脚
-  pinMode(buzzPin, OUTPUT);       // 定义蜂鸣器引脚为输出引脚
-  pinMode(vibratorPin, OUTPUT);   // 定义震动模块引脚为输出引脚
+
+  pinMode(buzzPinAnalog, OUTPUT);     // 定义蜂鸣器引脚为输出引脚
+  pinMode(vibratorPinAnalog, OUTPUT); // 定义震动模块引脚为输出引脚
 
   pinMode(encoderPinA, INPUT);
   pinMode(encoderPinB, INPUT);
@@ -186,6 +188,6 @@ boolean IsEncoderButtonPushDown(void)
 // Alert 蜂鸣和震动
 void Alert(boolean buzz, boolean vibrator)
 {
-  digitalWrite(buzzPin, buzz ? HIGH : LOW);
-  digitalWrite(vibratorPin, vibrator ? HIGH : LOW);
+  analogWrite(buzzPinAnalog, buzz ? 256 : 0);
+  analogWrite(vibratorPinAnalog, vibrator ? 256 : 0);
 }
