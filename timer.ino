@@ -11,12 +11,12 @@ unsigned char second = 0;
 unsigned char minute = 0;
 unsigned char hour = 0;
 
+bool alertEnable = false;
+
 // 时钟引脚， Arduino Nano 只有 2，3 引脚支持 attachInterrupt
 #define CLK 2
 #define DIO 3
 TM1637 tm1637(CLK, DIO);
-
-const int resetButtonPin = 4; // 重置开关按键
 
 const int buzzPinAnalog = A0;     // 蜂鸣器
 const int vibratorPinAnalog = A1; // 震动模块
@@ -41,8 +41,6 @@ void setup()
   Serial.begin(9600);
   Serial.println("TIMER SETUP");
 
-  pinMode(resetButtonPin, INPUT); // 定义重置开关按键引脚为输入引脚
-
   pinMode(buzzPinAnalog, OUTPUT);     // 定义蜂鸣器引脚为输出引脚
   pinMode(vibratorPinAnalog, OUTPUT); // 定义震动模块引脚为输出引脚
 
@@ -63,12 +61,8 @@ void setup()
 void loop()
 {
   int sensorValue = analogRead(resetButtonPinAnalog);
-  Serial.print("resetButtonPinAnalog pin: ");
-  Serial.println(sensorValue);
-
-  if (IsEncoderButtonPushDown())
+  if (sensorValue == 0)
   {
-    // Serial.println("you push button down!!!");
     // TODO: 切换显示模式
   }
 
@@ -77,15 +71,12 @@ void loop()
 
   // 输出 encoder value
   // TODO: 用于设置时间或报警时长
-  // Serial.println(ReadEncoderValue());
+  Serial.println(ReadEncoderValue());
 
   // 重置按钮按下时，数值归零
-  // int val = digitalRead(resetButtonPin); // 读取输入值
-  // if (val == HIGH)                       // 检查输入是否为高，这里高为按下
-  if (sensorValue == 7 || sensorValue == 8)
+  if (IsEncoderButtonPushDown())
   {
-    Serial.println("resetButtonPin HIGH");
-    Alert(true, true);
+    Serial.println("you push button down!!!");
 
     ClockPoint = 1;
     halfsecond = 0;
@@ -93,10 +84,17 @@ void loop()
     minute = 0;
     hour = 0;
     Update = OFF;
+
+    TimeUpdate();             // 更新时钟 TimeDisp
+    tm1637.display(TimeDisp); // 更新数码管显示
+
+    analogWrite(vibratorPinAnalog, 256); // 震动提示
+    return;
   }
   else
   {
     Alert(false, false);
+    analogWrite(vibratorPinAnalog, 0); // 震动提示
   }
 
   // 每分钟报警一次
@@ -195,6 +193,9 @@ boolean IsEncoderButtonPushDown(void)
 // Alert 蜂鸣和震动
 void Alert(boolean buzz, boolean vibrator)
 {
-  analogWrite(buzzPinAnalog, buzz ? 256 : 0);
-  analogWrite(vibratorPinAnalog, vibrator ? 256 : 0);
+  if (alertEnable)
+  {
+    analogWrite(buzzPinAnalog, buzz ? 256 : 0);
+    analogWrite(vibratorPinAnalog, vibrator ? 256 : 0);
+  }
 }
