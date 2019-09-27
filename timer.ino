@@ -12,6 +12,7 @@ unsigned char minute = 0;
 unsigned char hour = 0;
 
 bool alertEnable = false;
+unsigned char alertEnableCount = 0;
 
 // 时钟引脚， Arduino Nano 只有 2，3 引脚支持 attachInterrupt
 #define CLK 2
@@ -24,6 +25,7 @@ const int vibratorPinAnalog = A1; // 震动模块
 const int resetButtonPinAnalog = A2; // 重置开关按键
 
 // 旋钮
+// http://www.dfrobot.com.cn/goods-1421.html
 const int encoderButtonPin = 7; // 旋钮开关
 const int encoderPinA = 8;      //
 const int encoderPinB = 9;      //
@@ -32,9 +34,6 @@ volatile int lastEncoded = 0;
 volatile long encoderValue = 0;
 
 long lastencoderValue = 0;
-
-int lastMSB = 0;
-int lastLSB = 0;
 
 void setup()
 {
@@ -60,11 +59,15 @@ void setup()
 
 void loop()
 {
-  int sensorValue = analogRead(resetButtonPinAnalog);
-  if (sensorValue == 0)
-  {
-    // TODO: 切换显示模式
-  }
+  // int sensorValue = analogRead(resetButtonPinAnalog);
+  // Serial.print("sensorValue ");
+  // Serial.println(sensorValue);
+
+  // if (sensorValue == 8)
+  // {
+  //   // TODO: 切换显示模式
+  //   Serial.println("you sensor button down!!!");
+  // }
 
   // 在 loop 函数中代替 attachInterrupt 来监听更新 Encoder
   UpdateEncoder();
@@ -77,6 +80,8 @@ void loop()
   if (IsEncoderButtonPushDown())
   {
     Serial.println("you push button down!!!");
+
+    alertEnableCount = 0;
 
     ClockPoint = 1;
     halfsecond = 0;
@@ -123,6 +128,17 @@ void TimingISR()
   if (halfsecond == 2)
   {
     second++;
+
+    if (IsEncoderButtonPushDown())
+    {
+      alertEnableCount++;
+      if (alertEnableCount == 5)
+      {
+        alertEnable = !alertEnable;
+        alertEnableCount = 0;
+      }
+    }
+
     if (second == 60)
     {
       minute++;
@@ -147,6 +163,12 @@ void TimingISR()
 void TimeUpdate(void)
 {
   tm1637.point(ClockPoint ? POINT_ON : POINT_OFF);
+
+  // 时钟
+  // TimeDisp[0] = hour / 10;
+  // TimeDisp[1] = hour % 10;
+  // TimeDisp[2] = minute / 10;
+  // TimeDisp[3] = minute % 10;
 
   TimeDisp[0] = minute / 10;
   TimeDisp[1] = minute % 10;
