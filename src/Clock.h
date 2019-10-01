@@ -10,7 +10,7 @@ class Clock
 {
 public:
   Clock();
-  void loop();
+  void update();
 
   int mode;
   boolean showPoint;

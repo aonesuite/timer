@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "Manager.h"
 #include "Ticker.h"
+#include "Encoder.h"
 
 #define CLK 2
 #define DIO 3
@@ -14,20 +15,22 @@ Manager::Manager()
   clock = new Clock();
   display = new Display((uint8_t)CLK, (uint8_t)DIO);
   initISR();
+  setupEncoder();
 }
 
 void Manager::loop()
 {
   delay(50);
-  clock->loop();
+  updateEncoder();
 
   switch (mode)
   {
   case MODE_CLOCK:
     // 时钟模式
+    clock->update();
+
     if (clock->changed)
     {
-      Serial.println(clock->second);
       display->showTime(clock->hour, clock->minute, clock->showPoint);
       display->refresh();
     }

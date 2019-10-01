@@ -10,39 +10,49 @@ Clock::Clock()
   changed = false;
 }
 
-void Clock::loop()
+void Clock::update()
 {
   changed = false;
 
-  uint64_t s = getISRTimeCount() / 2;
-  boolean newShowPoint = getISRTimeCount() % 2 == 0;
-
-  if (newShowPoint != showPoint)
+  // 更新时间
+  switch (mode)
   {
-    showPoint = newShowPoint;
-    changed = true;
-  }
+  case CLOCK_MODE_DIS:
+    // 显示模式
+    uint64_t s = getISRTimeCount() / 2;
+    boolean newShowPoint = getISRTimeCount() % 2 == 0;
 
-  unsigned char newSecond = s % 60;
-  if (newSecond != second)
-  {
-    second = newSecond;
-
-    if (second == 0)
+    if (newShowPoint != showPoint)
     {
-      uint64_t tmp = s / 60;
-      unsigned char newMinute = tmp % 60;
+      showPoint = newShowPoint;
+      changed = true;
+    }
 
-      if (newMinute != minute)
+    unsigned char newSecond = s % 60;
+    if (newSecond != second)
+    {
+      second = newSecond;
+
+      if (second == 0)
       {
-        minute = newMinute;
+        uint64_t tmp = s / 60;
+        unsigned char newMinute = tmp % 60;
 
-        if (minute == 0)
+        if (newMinute != minute)
         {
-          hour = (tmp / 60) % 24;
+          minute = newMinute;
+
+          if (minute == 0)
+          {
+            hour = (tmp / 60) % 24;
+          }
         }
       }
     }
+    break;
+  case CLOCK_MODE_SET:
+
+    break;
   }
 }
 
