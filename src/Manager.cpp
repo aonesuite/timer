@@ -18,9 +18,24 @@ Manager::Manager()
 
 void Manager::loop()
 {
-  delay(1000);
+  delay(50);
   clock->loop();
-  display->loop();
+
+  switch (mode)
+  {
+  case MODE_CLOCK:
+    // 时钟模式
+    if (clock->changed)
+    {
+      Serial.println(clock->second);
+      display->showTime(clock->hour, clock->minute, clock->showPoint);
+      display->refresh();
+    }
+    break;
+  case MODE_COUNTDOWN:
+    // 计时器模式
+    break;
+  }
 }
 
 #endif

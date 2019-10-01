@@ -8,8 +8,8 @@ class Display
 public:
   Display(uint8_t clk, uint8_t dio);
   void clear();
-  void showTime(int hour, int minute, boolean isOdd); // 显示时间
-  void loop();
+  void showTime(unsigned char hour, unsigned char minute, boolean isOdd); // 显示时间
+  void refresh();
 
 private:
   TM1637 *tm1637;

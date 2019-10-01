@@ -18,15 +18,15 @@ void Display::clear()
   tm1637->clearDisplay();
 }
 
-void Display::loop()
+void Display::refresh()
 {
   tm1637->display(displayBuf);
   tm1637->point(showPoint);
 }
 
-void Display::showTime(int hour, int minute, boolean isOdd)
+void Display::showTime(unsigned char hour, unsigned char minute, boolean sp)
 {
-  showPoint = isOdd;
+  showPoint = sp;
   displayBuf[0] = hour / 10;
   displayBuf[1] = hour % 10;
   displayBuf[2] = minute / 10;
