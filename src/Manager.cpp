@@ -32,6 +32,7 @@ void Manager::loop()
     if (clock->changed)
     {
       display->showTime(clock->hour, clock->minute, clock->showPoint);
+      // display->showTime(clock->minute, clock->second, clock->showPoint);
       display->refresh();
     }
     break;

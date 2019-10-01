@@ -3,6 +3,7 @@
 
 #include "Ticker.h"
 #include "Clock.h"
+#include "Encoder.h"
 
 Clock::Clock()
 {
@@ -14,6 +15,30 @@ void Clock::update()
 {
   changed = false;
 
+  boolean forceUpdateAll = false;
+  // 双击切换模式
+  if (isBtnDoubleClicked())
+  {
+    mode = (mode == CLOCK_MODE_DIS) ? CLOCK_MODE_SET : CLOCK_MODE_DIS;
+
+    changed = true;
+    forceUpdateAll = true;
+
+    if (mode == CLOCK_MODE_DIS)
+    {
+      // 设置新时间
+      // TODO
+      Serial.println((long)getISRTimeCount());
+    }
+    else
+    {
+      minute = 0;
+      showPoint = false;
+    }
+    Serial.print("SWITCH TO CLOCK MODE ");
+    Serial.println(mode == CLOCK_MODE_DIS ? "DIS" : "SET");
+  }
+
   // 更新时间
   switch (mode)
   {
@@ -22,27 +47,28 @@ void Clock::update()
     uint64_t s = getISRTimeCount() / 2;
     boolean newShowPoint = getISRTimeCount() % 2 == 0;
 
-    if (newShowPoint != showPoint)
+    if (forceUpdateAll || newShowPoint != showPoint)
     {
       showPoint = newShowPoint;
       changed = true;
     }
 
     unsigned char newSecond = s % 60;
-    if (newSecond != second)
+    if (forceUpdateAll || newSecond != second)
     {
       second = newSecond;
 
-      if (second == 0)
+      if (forceUpdateAll || second == 0)
       {
         uint64_t tmp = s / 60;
         unsigned char newMinute = tmp % 60;
 
-        if (newMinute != minute)
+        if (forceUpdateAll || newMinute != minute)
         {
           minute = newMinute;
+          Serial.println("update minute");
 
-          if (minute == 0)
+          if (forceUpdateAll || minute == 0)
           {
             hour = (tmp / 60) % 24;
           }
@@ -51,6 +77,9 @@ void Clock::update()
     }
     break;
   case CLOCK_MODE_SET:
+
+    long v = readEncoderValue();
+    Serial.println(v);
 
     break;
   }

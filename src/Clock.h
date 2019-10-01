@@ -19,6 +19,9 @@ public:
   unsigned char second;
 
   boolean changed;
+
+private:
+  uint64_t setModeInitTime;
 };
 
 #endif
