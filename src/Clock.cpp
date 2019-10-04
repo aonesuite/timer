@@ -4,6 +4,7 @@
 #include "Ticker.h"
 #include "Clock.h"
 #include "Encoder.h"
+#include "Output.h"
 
 Clock::Clock()
 {
@@ -50,6 +51,7 @@ void Clock::update()
     }
 
     changed = true;
+    triggerVibration(100, 255);
   }
 
   if (mode == CLOCK_MODE_DIS)
@@ -96,6 +98,7 @@ void Clock::update()
     {
       isSetModeHour = !isSetModeHour;
       initSetMode();
+      triggerBuzzer(50, 255);
     }
 
     if (isSetModeHour)

@@ -5,6 +5,7 @@
 #include "CountDown.h"
 #include "Encoder.h"
 #include "config.h"
+#include "Output.h"
 
 CountDown::CountDown()
 {
@@ -67,6 +68,7 @@ void CountDown::update()
     }
 
     changed = true;
+    triggerVibration(100, 255);
   }
 
   // 更新时间
@@ -90,6 +92,7 @@ void CountDown::update()
         baseRunTime += getISRTimeSecond() - pauseTime;
         Serial.println("[COUNTDOWN] RESUME");
       }
+      triggerBuzzer(50, 255);
     }
 
     // 暂停状态直接返回
@@ -112,6 +115,8 @@ void CountDown::update()
     if (remainSeconds < 0)
     {
       // 倒计时结束，回到初始状态
+      triggerBuzzer(500, 255);
+      triggerVibration(500, 255);
       initDisMode();
       return;
     }
@@ -139,6 +144,7 @@ void CountDown::update()
     {
       isSetModeMinute = !isSetModeMinute;
       initSetMode();
+      triggerBuzzer(50, 255);
     }
 
     if (isSetModeMinute)
@@ -154,6 +160,7 @@ void CountDown::update()
       {
         minute = newMinute;
         changed = true;
+        triggerVibration(50, 255);
       }
     }
     else
@@ -169,6 +176,7 @@ void CountDown::update()
       {
         second = newSec;
         changed = true;
+        triggerVibration(50, 255);
       }
     }
   }

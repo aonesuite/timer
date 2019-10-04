@@ -17,7 +17,9 @@ private:
   TM1637 *tm1637;
   int8_t displayBuf[4];
   boolean showPoint;
-  int64_t preDataBuf;
+
+  int8_t preDisplayBuf[4];
+  boolean preShowPoint;
 };
 
 #endif

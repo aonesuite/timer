@@ -16,13 +16,21 @@ Display::Display()
 
 void Display::flush()
 {
-  int64_t dataBuf = (showPoint << 32) | (displayBuf[0] << 24) | (displayBuf[1] << 16) | (displayBuf[2] << 8) | displayBuf[3];
-  if (preDataBuf ^ dataBuf)
-  {
-    // 有不同，再输出
-    tm1637->point(showPoint);
-    tm1637->display(displayBuf);
-  }
+  tm1637->point(showPoint);
+  tm1637->display(displayBuf);
+
+  // TODO 测试是否有必要？
+  // if (showPoint != preShowPoint || displayBuf[0] != preDisplayBuf[0] || displayBuf[1] != preDisplayBuf[1] || displayBuf[2] != preDisplayBuf[2] || displayBuf[3] != preDisplayBuf[3])
+  // {
+  //   preShowPoint = showPoint;
+  //   preDisplayBuf[0] = displayBuf[0];
+  //   preDisplayBuf[1] = displayBuf[1];
+  //   preDisplayBuf[2] = displayBuf[2];
+  //   preDisplayBuf[3] = displayBuf[3];
+
+  //   tm1637->point(showPoint);
+  //   tm1637->display(displayBuf);
+  // }
 }
 
 void Display::fillTime(unsigned char leftValue, unsigned char rightValue, boolean sp)

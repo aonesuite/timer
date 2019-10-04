@@ -5,6 +5,7 @@
 #include "Manager.h"
 #include "Ticker.h"
 #include "Encoder.h"
+#include "Output.h"
 
 // 初始化系统
 Manager::Manager()
@@ -17,6 +18,7 @@ Manager::Manager()
 
   initISR();     // 初始化时钟中断
   initEncoder(); // 初始化旋钮
+  initOutput();  // 初始化输出
 }
 
 // 主逻辑循环
@@ -32,6 +34,9 @@ void Manager::loop()
     clock->changed = true;
     countDown->changed = true;
     Serial.println(String("[MANAGER] SWITCH MODE TO: ") + mode == MODE_CLOCK ? "CLOCK" : "COUNTDOWN");
+
+    triggerVibration(1000, 255);
+    triggerBuzzer(500, 255);
   }
 
   switch (mode)
@@ -81,6 +86,8 @@ void Manager::loop()
     }
     break;
   }
+
+  loopOutout();
 }
 
 #endif
