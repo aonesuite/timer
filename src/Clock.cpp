@@ -7,50 +7,57 @@
 
 Clock::Clock()
 {
-  mode = CLOCK_MODE_DIS;
-  changed = false;
-  isSetModeHour = true;
+  mode = CLOCK_MODE_DIS; // 默认处于显示状态
+  initDisMode();
+}
+
+void Clock::initDisMode()
+{
+  forceUpdateAll = true;
+  Serial.println("[CLOCK] enter display mode");
+}
+
+void Clock::initSetMode()
+{
+  forceUpdateAll = true;
+  showPoint = false;                             // 设置模式冒号不闪烁
+  setModeBaseHour = hour;                        // 记录进入设置模式时的初始小时
+  setModeBaseMinute = minute;                    // 记录进入设置模式时的初始分钟
+  setModeEncoderBaseHour = readEncoderValue();   // 记录进入小时设置时的初始旋钮数值
+  setModeEncoderBaseMinute = readEncoderValue(); // 记录进入分钟设置时的初始旋钮数值
+  Serial.println("[CLOCK] enter settings mode");
 }
 
 void Clock::update()
 {
   changed = false;
 
-  boolean forceUpdateAll = false;
   // 双击切换模式
   if (isBtnDoubleClicked())
   {
-    mode = (mode == CLOCK_MODE_DIS) ? CLOCK_MODE_SET : CLOCK_MODE_DIS;
+    mode ^= 0x1; // 取反切换模式
 
     if (mode == CLOCK_MODE_DIS)
     {
-      // 进入显示模式，设置新时间
-      setISRTimeCount(hour * 3600 + minute * 60);
-      delay(50);
+      // 由设置模式进入显示模式，设置新时间
+      setISRTimeSecond(hour * 3600 + minute * 60);
+      initDisMode();
     }
     else
     {
-      // 进入设置模式，初始化数据
-      showPoint = false;
-      setModeBaseHour = hour;
-      setModeBaseMinute = minute;
-      setModeEncoderBaseHour = readEncoderValue();
-      setModeEncoderBaseMinute = readEncoderValue();
+      isSetModeHour = true; // 默认处于设置小时状态
+      initSetMode();
     }
 
     changed = true;
-    forceUpdateAll = true;
-
-    Serial.print("[CLOCK] SWITCH MODE TO: ");
-    Serial.println(mode == CLOCK_MODE_DIS ? "DIS" : "SET");
   }
 
-  // 更新时间
   if (mode == CLOCK_MODE_DIS)
   {
     // 显示模式
-    uint64_t s = getISRTimeCount() >> 1;
-    boolean newShowPoint = getISRTimeCount() % 2 == 0;
+
+    uint64_t s = getISRTimeSecond();
+    boolean newShowPoint = isFirstHalfSecond();
 
     if (forceUpdateAll || newShowPoint != showPoint)
     {
@@ -82,14 +89,13 @@ void Clock::update()
   }
   else if (mode == CLOCK_MODE_SET)
   {
-    // 设置模式下，单击切换小时设置和分钟设置
+    // 设置模式
+
+    // 单击切换小时设置和分钟设置
     if (isBtnClicked())
     {
       isSetModeHour = !isSetModeHour;
-      setModeBaseHour = hour;
-      setModeBaseMinute = minute;
-      setModeEncoderBaseHour = readEncoderValue();
-      setModeEncoderBaseMinute = readEncoderValue();
+      initSetMode();
     }
 
     if (isSetModeHour)
@@ -123,6 +129,8 @@ void Clock::update()
       }
     }
   }
+
+  forceUpdateAll = false;
 }
 
 #endif

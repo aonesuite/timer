@@ -8,94 +8,99 @@
 
 CountDown::CountDown()
 {
-  mode = COUNT_DOWN_MODE_SET;
-  changed = false;
+  mode = COUNT_DOWN_MODE_DIS;
   totalSeconds = DEFAULT_COUNT_DOWN_SECONDS;
-  initModeSet();
+
+  initDisMode();
+}
+
+// 初始化倒计时模式数据
+void CountDown::initDisMode()
+{
+  forceUpdateAll = true;
+
+  showPoint = true;
+  minute = (totalSeconds / 60) % 60;
+  second = totalSeconds % 60;
+
+  baseRunTime = getISRTimeSecond();
+  // 刚切换到显示模式暂停
+  pause = true;
+  pauseTime = baseRunTime;
+  Serial.println("[COUNTDOWN] enter display mode");
 }
 
 // 初始化设置模式数据
-void CountDown::initModeSet()
+void CountDown::initSetMode()
 {
-
-  second = totalSeconds % 60;
-  minute = totalSeconds / 60 % 60;
-
+  forceUpdateAll = true;
   showPoint = false;
-  isSetModeMinute = true;
   setModeBaseMinute = minute;
   setModeBaseSecond = second;
   setModeEncoderBaseMinute = readEncoderValue();
   setModeEncoderBaseSecond = readEncoderValue();
-}
-
-// 初始化倒计时模式数据
-void CountDown::initModeDis()
-{
-  totalSeconds = minute * 60 + second;
-  minute = (totalSeconds / 60) % 60;
-  second = totalSeconds % 60;
-  Serial.println(String("[COUNTDOWN] SET ") + " " + minute + ":" + second);
-  delay(20);
-  baseRunTime = getISRTimeCount();
+  Serial.println("[COUNTDOWN] enter settings mode");
 }
 
 void CountDown::update()
 {
   changed = false;
 
-  boolean forceUpdateAll = false;
   // 双击切换模式
   if (isBtnDoubleClicked())
   {
-    mode = (mode == COUNT_DOWN_MODE_DIS) ? COUNT_DOWN_MODE_SET : COUNT_DOWN_MODE_DIS;
+    mode ^= 0x1; // 取反切换模式
 
     if (mode == COUNT_DOWN_MODE_DIS)
     {
-      initModeDis();
+      // 设置模式转为显示模式，根据设置设置目标倒计时秒数
+      totalSeconds = minute * 60 + second;
+      Serial.println(String("[COUNTDOWN] SET ") + " " + minute + ":" + second);
+      initDisMode();
     }
     else
     {
-      initModeSet();
+      isSetModeMinute = true; // 默认处于设置分钟状态
+      minute = (totalSeconds / 60) % 60;
+      second = totalSeconds % 60;
+      initSetMode();
     }
 
     changed = true;
-    forceUpdateAll = true;
-
-    Serial.print("[COUNT_DOWN] SWITCH MODE TO: ");
-    Serial.println(mode == COUNT_DOWN_MODE_DIS ? "DIS" : "SET");
   }
 
   // 更新时间
   if (mode == COUNT_DOWN_MODE_DIS)
   {
-    // 倒计时模式下，单击暂停
+    // 显示模式
+
+    // 显示模式下，单击暂停
     if (isBtnClicked())
     {
       pause = !pause;
       if (pause)
       {
         // 暂停时记录暂停的时间
-        pauseTime = getISRTimeCount();
+        pauseTime = getISRTimeSecond();
         Serial.println("[COUNTDOWN] PAUSE");
       }
       else
       {
         // 恢复时，更新 base 时间
-        baseRunTime += getISRTimeCount() - pauseTime;
+        baseRunTime += getISRTimeSecond() - pauseTime;
         Serial.println("[COUNTDOWN] RESUME");
       }
-      delay(20);
     }
 
-    if (pause)
+    // 暂停状态直接返回
+    if (pause && !forceUpdateAll)
     {
       return;
     }
 
-    // 显示模式
-    uint64_t t = getISRTimeCount();
-    boolean newShowPoint = getISRTimeCount() % 2 == 0;
+    // 运行
+    uint64_t s = getISRTimeSecond();
+    boolean newShowPoint = isFirstHalfSecond();
 
     if (forceUpdateAll || newShowPoint != showPoint)
     {
@@ -103,14 +108,13 @@ void CountDown::update()
       changed = true;
     }
 
-    int remainSeconds = totalSeconds - ((t - baseRunTime) >> 1);
-
+    int remainSeconds = totalSeconds - (s - baseRunTime);
     if (remainSeconds < 0)
     {
-      pause = true;
+      // 倒计时结束，回到初始状态
+      initDisMode();
+      return;
     }
-
-    // Serial.println(String("") + totalSeconds + " - " + remainSeconds);
 
     unsigned char newSecond = remainSeconds % 60;
     if (forceUpdateAll || newSecond != second)
@@ -134,10 +138,7 @@ void CountDown::update()
     if (isBtnClicked())
     {
       isSetModeMinute = !isSetModeMinute;
-      setModeBaseSecond = second;
-      setModeBaseMinute = minute;
-      setModeEncoderBaseSecond = readEncoderValue();
-      setModeEncoderBaseMinute = readEncoderValue();
+      initSetMode();
     }
 
     if (isSetModeMinute)
@@ -171,6 +172,8 @@ void CountDown::update()
       }
     }
   }
+
+  forceUpdateAll = false;
 }
 
 #endif

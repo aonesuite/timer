@@ -6,31 +6,32 @@
 #include "Ticker.h"
 #include "Encoder.h"
 
-#define CLK 2
-#define DIO 3
-
+// 初始化系统
 Manager::Manager()
 {
   mode = MODE_CLOCK;
+
+  display = new Display();
   clock = new Clock();
   countDown = new CountDown();
-  display = new Display((uint8_t)CLK, (uint8_t)DIO);
-  initISR();
-  setupEncoder();
+
+  initISR();     // 初始化时钟中断
+  initEncoder(); // 初始化旋钮
 }
 
+// 主逻辑循环
 void Manager::loop()
 {
   delay(LOOP_DELAY);
   updateEncoder();
 
+  // 旋钮长按切换模式
   if (isBtnHoldLong())
   {
-    mode = mode == MODE_CLOCK ? MODE_COUNTDOWN : MODE_CLOCK;
-    Serial.print("[MANAGER] SWITCH MODE TO: ");
-    Serial.println(mode == MODE_CLOCK ? "CLOCK" : "COUNTDOWN");
+    mode ^= 0x1; // 取反切换模式
     clock->changed = true;
     countDown->changed = true;
+    Serial.println(String("[MANAGER] SWITCH MODE TO: ") + mode == MODE_CLOCK ? "CLOCK" : "COUNTDOWN");
   }
 
   switch (mode)
@@ -41,21 +42,21 @@ void Manager::loop()
 
     if (clock->changed)
     {
-      display->showTime(clock->hour, clock->minute, clock->showPoint);
-      display->refresh();
+      // 如果数据有变动，刷新显示屏
+      display->fillTime(clock->hour, clock->minute, clock->showPoint);
+      // display->fillTime(clock->minute, clock->second, clock->showPoint);
+      display->flush();
     }
     else if (clock->mode == CLOCK_MODE_SET)
     {
-      display->showTime(clock->hour, clock->minute, clock->showPoint);
+      // 数据无变动，但在设置模式下，配置闪烁
+      display->fillTime(clock->hour, clock->minute, clock->showPoint);
       // 设置模式下，闪烁设置项（小时|分钟）
-      boolean blinkShow = getISRTimeCount() % 2 == 0;
-      if (!blinkShow)
+      if (isFirstHalfSecond())
       {
-        // 隐藏分钟或小时
-        clock->isSetModeHour ? display->hideLeft() : display->hideRight();
+        clock->isSetModeHour ? display->clearLeft() : display->clearRight();
       }
-
-      display->refresh();
+      display->flush();
     }
 
     break;
@@ -65,21 +66,18 @@ void Manager::loop()
 
     if (countDown->changed)
     {
-      display->showTime(countDown->minute, countDown->second, countDown->showPoint);
-      display->refresh();
+      display->fillTime(countDown->minute, countDown->second, countDown->showPoint);
+      display->flush();
     }
     else if (countDown->mode == COUNT_DOWN_MODE_SET)
     {
-      display->showTime(countDown->minute, countDown->second, countDown->showPoint);
-      // 设置模式下，闪烁设置项（分钟|秒钟）
-      boolean blinkShow = getISRTimeCount() % 2 == 0;
-      if (!blinkShow)
+      display->fillTime(countDown->minute, countDown->second, countDown->showPoint);
+      // 设置模式下，闪烁设置项（秒钟|分钟）
+      if (isFirstHalfSecond())
       {
-        // 隐藏分钟或小时
-        countDown->isSetModeMinute ? display->hideLeft() : display->hideRight();
+        countDown->isSetModeMinute ? display->clearLeft() : display->clearRight();
       }
-
-      display->refresh();
+      display->flush();
     }
     break;
   }

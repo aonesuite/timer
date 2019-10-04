@@ -3,9 +3,11 @@
 
 Manager m;
 
+#define BAUD 9600
+
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(BAUD);
   m = Manager();
 }
 
