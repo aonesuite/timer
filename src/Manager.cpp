@@ -20,7 +20,7 @@ Manager::Manager()
 
 void Manager::loop()
 {
-  delay(50);
+  delay(10);
   updateEncoder();
 
   switch (mode)
@@ -32,9 +32,22 @@ void Manager::loop()
     if (clock->changed)
     {
       display->showTime(clock->hour, clock->minute, clock->showPoint);
-      // display->showTime(clock->minute, clock->second, clock->showPoint);
       display->refresh();
     }
+    else if (clock->mode == CLOCK_MODE_SET)
+    {
+      display->showTime(clock->hour, clock->minute, clock->showPoint);
+      // 设置模式下，闪烁设置项（小时|分钟）
+      boolean blinkShow = getISRTimeCount() % 2 == 0;
+      if (!blinkShow)
+      {
+        // 隐藏分钟或小时
+        clock->isSetModeHour ? display->hideLeft() : display->hideRight();
+      }
+
+      display->refresh();
+    }
+
     break;
   case MODE_COUNTDOWN:
     // 计时器模式

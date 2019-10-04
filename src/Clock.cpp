@@ -9,7 +9,7 @@ Clock::Clock()
 {
   mode = CLOCK_MODE_DIS;
   changed = false;
-  setModeBase = 0;
+  isSetModeHour = true;
 }
 
 void Clock::update()
@@ -22,20 +22,25 @@ void Clock::update()
   {
     mode = (mode == CLOCK_MODE_DIS) ? CLOCK_MODE_SET : CLOCK_MODE_DIS;
 
-    changed = true;
-    forceUpdateAll = true;
-
     if (mode == CLOCK_MODE_DIS)
     {
-      // 设置新时间
-      // TODO
-      Serial.println((long)getISRTimeCount());
+      // 进入显示模式，设置新时间
+      setISRTimeCount(hour * 3600 + minute * 60);
+      delay(1000);
     }
     else
     {
+      // 进入设置模式，初始化数据
       showPoint = false;
-      setModeBase = 0;
+      setModeBaseHour = hour;
+      setModeBaseMinute = minute;
+      setModeEncoderBaseHour = readEncoderValue();
+      setModeEncoderBaseMinute = readEncoderValue();
     }
+
+    changed = true;
+    forceUpdateAll = true;
+
     Serial.print("SWITCH TO CLOCK MODE ");
     Serial.println(mode == CLOCK_MODE_DIS ? "DIS" : "SET");
   }
@@ -78,22 +83,46 @@ void Clock::update()
   }
   else if (mode == CLOCK_MODE_SET)
   {
-    long v = readEncoderValue();
-    if (setModeBase == 0)
+    // 设置模式下，单击切换小时设置和分钟设置
+    if (isBtnClicked())
     {
-      setModeBase = v;
+      isSetModeHour = !isSetModeHour;
+      setModeBaseHour = hour;
+      setModeBaseMinute = minute;
+      setModeEncoderBaseHour = readEncoderValue();
+      setModeEncoderBaseMinute = readEncoderValue();
     }
 
-    v -= setModeBase;
-    if (v == setModeLastV)
+    if (isSetModeHour)
     {
-      return;
+      // 设置小时
+      long v = readEncoderValue() - setModeEncoderBaseHour;
+      int newHour = (setModeBaseHour + v) % 24;
+      if (newHour < 0)
+      {
+        newHour += 24;
+      }
+      if (newHour != hour)
+      {
+        hour = newHour;
+        changed = true;
+      }
     }
-
-    hour = (hour + v) % 24;
-
-    changed = true;
-    setModeLastV = v;
+    else
+    {
+      // 设置分钟
+      long v = readEncoderValue() - setModeEncoderBaseMinute;
+      int newMin = (setModeBaseMinute + v) % 60;
+      if (newMin < 0)
+      {
+        newMin += 60;
+      }
+      if (newMin != minute)
+      {
+        minute = newMin;
+        changed = true;
+      }
+    }
   }
 }
 

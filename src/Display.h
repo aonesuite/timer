@@ -10,6 +10,8 @@ public:
   void clear();
   void showTime(unsigned char hour, unsigned char minute, boolean isOdd); // 显示时间
   void refresh();
+  void hideLeft();
+  void hideRight();
 
 private:
   TM1637 *tm1637;

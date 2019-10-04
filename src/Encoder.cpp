@@ -94,7 +94,7 @@ boolean isBtnDoubleClicked()
     return false;
   }
 
-  boolean isNear = lastBtnChangeUpdateCount - lastLastBtnChangeUpdateCount < 20;
+  boolean isNear = lastBtnChangeUpdateCount - lastLastBtnChangeUpdateCount < 50;
   if (isNear)
   {
     btnChanged = false;

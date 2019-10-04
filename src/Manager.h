@@ -14,7 +14,7 @@ public:
   void loop();
 
 private:
-  int mode;
+  volatile int mode;
   Display *display;
   Clock *clock;
 };

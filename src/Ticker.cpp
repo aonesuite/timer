@@ -4,7 +4,7 @@
 #include <TimerOne.h>
 #include "Ticker.h"
 
-uint64_t tickCount;
+volatile uint64_t tickCount;
 
 void initISR()
 {
@@ -23,6 +23,11 @@ void loopISR()
 uint64_t getISRTimeCount()
 {
   return tickCount;
+}
+
+void setISRTimeCount(uint64_t seconds)
+{
+  tickCount = seconds * 2;
 }
 
 #endif

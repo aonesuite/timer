@@ -33,4 +33,20 @@ void Display::showTime(unsigned char hour, unsigned char minute, boolean sp)
   displayBuf[3] = minute % 10;
 }
 
+void Display::hideLeft()
+{
+  displayBuf[0] = 0x7f;
+  displayBuf[1] = 0x7f;
+  // tm1637->display(0x00, 0x7f);
+  // tm1637->display(0x01, 0x7f);
+}
+
+void Display::hideRight()
+{
+  displayBuf[2] = 0x7f;
+  displayBuf[3] = 0x7f;
+  // tm1637->display(0x02, 0x7f);
+  // tm1637->display(0x03, 0x7f);
+}
+
 #endif

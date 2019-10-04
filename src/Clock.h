@@ -12,17 +12,20 @@ public:
   Clock();
   void update();
 
-  int mode;
-  boolean showPoint;
-  unsigned char hour;
-  unsigned char minute;
-  unsigned char second;
+  volatile int mode;
+  volatile boolean showPoint;
+  volatile unsigned char hour;
+  volatile unsigned char minute;
+  volatile unsigned char second;
 
-  boolean changed;
+  volatile boolean changed;
+  volatile boolean isSetModeHour;
 
 private:
-  long setModeBase;
-  long setModeLastV;
+  volatile unsigned char setModeBaseHour;
+  volatile unsigned char setModeBaseMinute;
+  volatile long setModeEncoderBaseHour;
+  volatile long setModeEncoderBaseMinute;
 };
 
 #endif
