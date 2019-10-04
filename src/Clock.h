@@ -21,7 +21,8 @@ public:
   boolean changed;
 
 private:
-  uint64_t setModeInitTime;
+  long setModeBase;
+  long setModeLastV;
 };
 
 #endif

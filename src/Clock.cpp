@@ -9,6 +9,7 @@ Clock::Clock()
 {
   mode = CLOCK_MODE_DIS;
   changed = false;
+  setModeBase = 0;
 }
 
 void Clock::update()
@@ -32,17 +33,16 @@ void Clock::update()
     }
     else
     {
-      minute = 0;
       showPoint = false;
+      setModeBase = 0;
     }
     Serial.print("SWITCH TO CLOCK MODE ");
     Serial.println(mode == CLOCK_MODE_DIS ? "DIS" : "SET");
   }
 
   // 更新时间
-  switch (mode)
+  if (mode == CLOCK_MODE_DIS)
   {
-  case CLOCK_MODE_DIS:
     // 显示模式
     uint64_t s = getISRTimeCount() / 2;
     boolean newShowPoint = getISRTimeCount() % 2 == 0;
@@ -75,13 +75,25 @@ void Clock::update()
         }
       }
     }
-    break;
-  case CLOCK_MODE_SET:
-
+  }
+  else if (mode == CLOCK_MODE_SET)
+  {
     long v = readEncoderValue();
-    Serial.println(v);
+    if (setModeBase == 0)
+    {
+      setModeBase = v;
+    }
 
-    break;
+    v -= setModeBase;
+    if (v == setModeLastV)
+    {
+      return;
+    }
+
+    hour = (hour + v) % 24;
+
+    changed = true;
+    setModeLastV = v;
   }
 }
 

@@ -25,6 +25,9 @@ void setupEncoder()
   pinMode(encoderPinA, INPUT);
   pinMode(encoderPinB, INPUT);
   pinMode(encoderButtonPin, INPUT);
+
+  digitalWrite(encoderPinA, HIGH); //turn pullup resistor on
+  digitalWrite(encoderPinB, HIGH); //turn pullup resistor on
 }
 
 // UpdateKnob 更新 360 度编码器开关数值
