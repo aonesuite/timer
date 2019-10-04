@@ -1,4 +1,4 @@
-# timer
+# Scrum Timer
 
 Scrum 例会专用定时器，具有倒计时和时钟的功能。
 
