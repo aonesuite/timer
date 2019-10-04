@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include "Encoder.h"
+#include "config.h"
 
 // 旋钮
 // http://www.dfrobot.com.cn/goods-1421.html
@@ -19,6 +20,8 @@ volatile int updateCount = 0;
 int lastBtnChangeUpdateCount = 0;
 int lastLastBtnChangeUpdateCount = 0;
 boolean btnChanged = false;
+
+int btnHoldLoopCount = 0;
 
 void setupEncoder()
 {
@@ -51,15 +54,24 @@ void updateEncoder()
   boolean btnStatus = !digitalRead(encoderButtonPin);
   updateCount++;
 
+  if (btnStatus == 1)
+  {
+    btnHoldLoopCount++;
+  }
+  else
+  {
+    btnHoldLoopCount = 0;
+  }
+
   // 和上次相同，则不处理
   if (lastBtnStatus == btnStatus)
   {
     return;
   }
 
-  if (btnStatus == 1)
+  if (btnStatus == 0)
   {
-    // 按下了
+    // 按钮弹起了
     lastLastBtnChangeUpdateCount = lastBtnChangeUpdateCount;
     lastBtnChangeUpdateCount = updateCount;
 
@@ -86,7 +98,7 @@ boolean isBtnClicked()
   return true;
 }
 
-// 是否触发了两次
+// 是否触发了按钮双击动作
 boolean isBtnDoubleClicked()
 {
   if (!btnChanged)
@@ -94,10 +106,22 @@ boolean isBtnDoubleClicked()
     return false;
   }
 
-  boolean isNear = lastBtnChangeUpdateCount - lastLastBtnChangeUpdateCount < 50;
+  boolean isNear = lastBtnChangeUpdateCount - lastLastBtnChangeUpdateCount < DOUBLE_CLICK_LOOP_COUNT;
   if (isNear)
   {
     btnChanged = false;
+    return true;
+  }
+
+  return false;
+}
+
+// 是否触发了按钮长按动作
+boolean isBtnHoldLong()
+{
+  if (btnHoldLoopCount > HOLD_BTN_LOOP_COUNT)
+  {
+    btnHoldLoopCount = 0;
     return true;
   }
 

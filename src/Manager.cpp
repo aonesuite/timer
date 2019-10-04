@@ -20,8 +20,15 @@ Manager::Manager()
 
 void Manager::loop()
 {
-  delay(10);
+  delay(LOOP_DELAY);
   updateEncoder();
+
+  if (isBtnHoldLong())
+  {
+    mode = mode == MODE_CLOCK ? MODE_COUNTDOWN : MODE_CLOCK;
+    Serial.print("[MANAGER] SWITCH MODE TO: ");
+    Serial.println(mode == MODE_CLOCK ? "CLOCK" : "COUNTDOWN");
+  }
 
   switch (mode)
   {
@@ -51,6 +58,8 @@ void Manager::loop()
     break;
   case MODE_COUNTDOWN:
     // 计时器模式
+    display->clear();
+    display->refresh();
     break;
   }
 }

@@ -6,6 +6,7 @@
 
 #include "Clock.h"
 #include "Display.h"
+#include "config.h"
 
 class Manager
 {

@@ -41,7 +41,7 @@ void Clock::update()
     changed = true;
     forceUpdateAll = true;
 
-    Serial.print("SWITCH TO CLOCK MODE ");
+    Serial.print("[CLOCK] SWITCH MODE TO: ");
     Serial.println(mode == CLOCK_MODE_DIS ? "DIS" : "SET");
   }
 
@@ -71,7 +71,6 @@ void Clock::update()
         if (forceUpdateAll || newMinute != minute)
         {
           minute = newMinute;
-          Serial.println("update minute");
 
           if (forceUpdateAll || minute == 0)
           {

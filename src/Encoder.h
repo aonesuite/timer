@@ -6,5 +6,6 @@ void updateEncoder();
 long readEncoderValue();
 boolean isBtnClicked();
 boolean isBtnDoubleClicked();
+boolean isBtnHoldLong();
 
 #endif
