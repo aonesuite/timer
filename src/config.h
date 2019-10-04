@@ -15,6 +15,8 @@
 #define HOLD_BTN_TIME 2000            // 长按动作最小时长定义，默认 2000ms
 #define DEFAULT_COUNT_DOWN_SECONDS 90 // 默认倒计时，秒
 
+#define HOLD_NO_BLINK_LOOP_COUNT 100 // 设置模式下，触发修改后暂停闪烁的时长（单位：循环周期数）
+
 #define PIN_ANALOG_BUZZ A0 // 蜂鸣器
 #define PIN_ANALOG_VIBR A1 // 震动器
 

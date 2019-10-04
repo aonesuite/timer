@@ -18,6 +18,7 @@ public:
 
 private:
   volatile unsigned char mode; // 模式 MODE_CLOCK | MODE_COUNTDOWN
+  volatile int holdNoBlinkTimes;
 
   Display *display;     // 显示屏
   Clock *clock;         // 时钟控制服务

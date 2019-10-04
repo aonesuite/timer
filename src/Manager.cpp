@@ -11,6 +11,7 @@
 Manager::Manager()
 {
   mode = MODE_CLOCK;
+  holdNoBlinkTimes = 0;
 
   display = new Display();
   clock = new Clock();
@@ -26,6 +27,10 @@ void Manager::loop()
 {
   delay(LOOP_DELAY);
   updateEncoder();
+  if (holdNoBlinkTimes > 0)
+  {
+    holdNoBlinkTimes--;
+  }
 
   // 旋钮长按切换模式
   if (isBtnHoldLong())
@@ -51,8 +56,9 @@ void Manager::loop()
       display->fillTime(clock->hour, clock->minute, clock->showPoint);
       // display->fillTime(clock->minute, clock->second, clock->showPoint);
       display->flush();
+      holdNoBlinkTimes = HOLD_NO_BLINK_LOOP_COUNT;
     }
-    else if (clock->mode == CLOCK_MODE_SET)
+    else if (clock->mode == CLOCK_MODE_SET && holdNoBlinkTimes <= 0)
     {
       // 数据无变动，但在设置模式下，配置闪烁
       display->fillTime(clock->hour, clock->minute, clock->showPoint);
@@ -73,8 +79,9 @@ void Manager::loop()
     {
       display->fillTime(countDown->minute, countDown->second, countDown->showPoint);
       display->flush();
+      holdNoBlinkTimes = HOLD_NO_BLINK_LOOP_COUNT;
     }
-    else if (countDown->mode == COUNT_DOWN_MODE_SET)
+    else if (countDown->mode == COUNT_DOWN_MODE_SET && holdNoBlinkTimes <= 0)
     {
       display->fillTime(countDown->minute, countDown->second, countDown->showPoint);
       // 设置模式下，闪烁设置项（秒钟|分钟）

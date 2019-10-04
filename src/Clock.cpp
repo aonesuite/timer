@@ -114,6 +114,7 @@ void Clock::update()
       {
         hour = newHour;
         changed = true;
+        triggerVibration(50, 255);
       }
     }
     else
@@ -129,6 +130,7 @@ void Clock::update()
       {
         minute = newMin;
         changed = true;
+        triggerVibration(50, 255);
       }
     }
   }
