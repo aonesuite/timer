@@ -5,6 +5,7 @@
 #define MODE_COUNTDOWN 1
 
 #include "Clock.h"
+#include "CountDown.h"
 #include "Display.h"
 #include "config.h"
 
@@ -18,6 +19,7 @@ private:
   volatile int mode;
   Display *display;
   Clock *clock;
+  CountDown *countDown;
 };
 
 #endif

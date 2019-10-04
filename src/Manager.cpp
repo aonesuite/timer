@@ -13,6 +13,7 @@ Manager::Manager()
 {
   mode = MODE_CLOCK;
   clock = new Clock();
+  countDown = new CountDown();
   display = new Display((uint8_t)CLK, (uint8_t)DIO);
   initISR();
   setupEncoder();
@@ -58,8 +59,26 @@ void Manager::loop()
     break;
   case MODE_COUNTDOWN:
     // 计时器模式
-    display->clear();
-    display->refresh();
+    countDown->update();
+
+    if (countDown->changed)
+    {
+      display->showTime(countDown->minute, countDown->second, countDown->showPoint);
+      display->refresh();
+    }
+    else if (countDown->mode == COUNT_DOWN_MODE_SET)
+    {
+      display->showTime(countDown->minute, countDown->second, countDown->showPoint);
+      // 设置模式下，闪烁设置项（分钟|秒钟）
+      boolean blinkShow = getISRTimeCount() % 2 == 0;
+      if (!blinkShow)
+      {
+        // 隐藏分钟或小时
+        countDown->isSetModeMinute ? display->hideLeft() : display->hideRight();
+      }
+
+      display->refresh();
+    }
     break;
   }
 }

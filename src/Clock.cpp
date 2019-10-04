@@ -26,7 +26,7 @@ void Clock::update()
     {
       // 进入显示模式，设置新时间
       setISRTimeCount(hour * 3600 + minute * 60);
-      delay(1000);
+      delay(500);
     }
     else
     {
@@ -49,7 +49,7 @@ void Clock::update()
   if (mode == CLOCK_MODE_DIS)
   {
     // 显示模式
-    uint64_t s = getISRTimeCount() / 2;
+    uint64_t s = getISRTimeCount() >> 1;
     boolean newShowPoint = getISRTimeCount() % 2 == 0;
 
     if (forceUpdateAll || newShowPoint != showPoint)
