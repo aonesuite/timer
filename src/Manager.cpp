@@ -29,6 +29,8 @@ void Manager::loop()
     mode = mode == MODE_CLOCK ? MODE_COUNTDOWN : MODE_CLOCK;
     Serial.print("[MANAGER] SWITCH MODE TO: ");
     Serial.println(mode == MODE_CLOCK ? "CLOCK" : "COUNTDOWN");
+    clock->changed = true;
+    countDown->changed = true;
   }
 
   switch (mode)

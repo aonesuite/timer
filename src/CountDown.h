@@ -24,9 +24,9 @@ public:
 private:
   void initModeDis();
   void initModeSet();
-  int totalSeconds; // 倒计时设置
-  uint64_t baseRunTime;
-  uint64_t pauseTime;
+  volatile int totalSeconds; // 倒计时设置
+  volatile uint64_t baseRunTime;
+  volatile uint64_t pauseTime;
 
   volatile unsigned char setModeBaseMinute;
   volatile unsigned char setModeBaseSecond;

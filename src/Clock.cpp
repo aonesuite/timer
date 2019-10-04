@@ -26,7 +26,7 @@ void Clock::update()
     {
       // 进入显示模式，设置新时间
       setISRTimeCount(hour * 3600 + minute * 60);
-      delay(500);
+      delay(50);
     }
     else
     {

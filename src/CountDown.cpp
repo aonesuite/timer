@@ -33,11 +33,11 @@ void CountDown::initModeSet()
 void CountDown::initModeDis()
 {
   totalSeconds = minute * 60 + second;
-  Serial.println("设置完成");
-  Serial.println(totalSeconds);
-  delay(500);
+  minute = (totalSeconds / 60) % 60;
+  second = totalSeconds % 60;
+  Serial.println(String("[COUNTDOWN] SET ") + " " + minute + ":" + second);
+  delay(20);
   baseRunTime = getISRTimeCount();
-  pause = true;
 }
 
 void CountDown::update()
@@ -77,12 +77,15 @@ void CountDown::update()
       {
         // 暂停时记录暂停的时间
         pauseTime = getISRTimeCount();
+        Serial.println("[COUNTDOWN] PAUSE");
       }
+      else
       {
         // 恢复时，更新 base 时间
         baseRunTime += getISRTimeCount() - pauseTime;
-        delay(500);
+        Serial.println("[COUNTDOWN] RESUME");
       }
+      delay(20);
     }
 
     if (pause)
@@ -101,6 +104,13 @@ void CountDown::update()
     }
 
     int remainSeconds = totalSeconds - ((t - baseRunTime) >> 1);
+
+    if (remainSeconds < 0)
+    {
+      pause = true;
+    }
+
+    // Serial.println(String("") + totalSeconds + " - " + remainSeconds);
 
     unsigned char newSecond = remainSeconds % 60;
     if (forceUpdateAll || newSecond != second)

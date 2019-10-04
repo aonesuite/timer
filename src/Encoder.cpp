@@ -13,15 +13,15 @@ const int encoderPinB = 9;      //
 
 volatile int lastEncoded = 0;
 volatile long encoderValue = 0;
-long lastencoderValue = 0;
+volatile long lastencoderValue = 0;
 
-boolean lastBtnStatus = 0;
+volatile boolean lastBtnStatus = 0;
 volatile int updateCount = 0;
-int lastBtnChangeUpdateCount = 0;
-int lastLastBtnChangeUpdateCount = 0;
-boolean btnChanged = false;
+volatile int lastBtnChangeUpdateCount = 0;
+volatile int lastLastBtnChangeUpdateCount = 0;
+volatile boolean btnChanged = false;
 
-int btnHoldLoopCount = 0;
+volatile int btnHoldLoopCount = 0;
 
 void setupEncoder()
 {
@@ -94,8 +94,16 @@ boolean isBtnClicked()
   {
     return false;
   }
-  btnChanged = false;
-  return true;
+
+  // 保证优先匹配双击
+  if (lastBtnChangeUpdateCount - lastLastBtnChangeUpdateCount > (DOUBLE_CLICK_LOOP_COUNT + 10))
+  {
+    Serial.println("[ENCODER] CLICKED");
+    btnChanged = false;
+    return true;
+  }
+
+  return false;
 }
 
 // 是否触发了按钮双击动作
@@ -109,6 +117,7 @@ boolean isBtnDoubleClicked()
   boolean isNear = lastBtnChangeUpdateCount - lastLastBtnChangeUpdateCount < DOUBLE_CLICK_LOOP_COUNT;
   if (isNear)
   {
+    Serial.println("[ENCODER] DOUBLE CLICKED");
     btnChanged = false;
     return true;
   }
