@@ -12,6 +12,8 @@ class CountDown
 public:
   CountDown();
   void update();
+  void initDisMode();
+  void initSetMode();
 
   volatile unsigned char mode; // 模式 COUNT_DOWN_MODE_DIS | COUNT_DOWN_MODE_SET
 
@@ -24,9 +26,6 @@ public:
   volatile boolean isSetModeMinute; // true 设置模式下设置小时 false 设置模式下设置分钟
 
 private:
-  void initDisMode();
-  void initSetMode();
-
   volatile uint64_t totalSeconds; // 倒计时目标秒数设置
   volatile uint64_t baseRunTime;  // 开始倒计时运行时的初始全局时间（s，非时间间隔）
   volatile uint64_t pauseTime;    // 暂停开始的初始全局时间（s，非时间间隔）

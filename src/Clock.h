@@ -12,6 +12,8 @@ class Clock
 public:
   Clock();
   void update();
+  void initDisMode();
+  void initSetMode();
 
   volatile unsigned char mode; // 模式 CLOCK_MODE_DIS | CLOCK_MODE_SET
 
@@ -24,9 +26,6 @@ public:
   volatile boolean isSetModeHour; // true 设置模式下设置小时 false 设置模式下设置分钟
 
 private:
-  void initDisMode();
-  void initSetMode();
-
   volatile unsigned char setModeBaseHour;   // 设置小时：小时初始值
   volatile unsigned char setModeBaseMinute; // 设置分钟：分钟初始值
   volatile long setModeEncoderBaseHour;     // 设置小时：旋钮状态初始值

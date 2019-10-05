@@ -36,10 +36,11 @@ void Manager::loop()
   if (isBtnHoldLong())
   {
     mode ^= 0x1; // 取反切换模式
-    clock->changed = true;
-    countDown->changed = true;
-    Serial.println(String("[MANAGER] SWITCH MODE TO: ") + mode == MODE_CLOCK ? "CLOCK" : "COUNTDOWN");
 
+    clock->initDisMode();
+    countDown->initDisMode();
+
+    Serial.println(String("[MANAGER] SWITCH MODE TO: ") + mode == MODE_CLOCK ? "CLOCK" : "COUNTDOWN");
     triggerVibration(1000, 255);
     triggerBuzzer(500, 255);
   }

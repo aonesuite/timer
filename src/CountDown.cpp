@@ -9,7 +9,6 @@
 
 CountDown::CountDown()
 {
-  mode = COUNT_DOWN_MODE_DIS;
   totalSeconds = DEFAULT_COUNT_DOWN_SECONDS;
 
   initDisMode();
@@ -18,6 +17,7 @@ CountDown::CountDown()
 // 初始化倒计时模式数据
 void CountDown::initDisMode()
 {
+  mode = COUNT_DOWN_MODE_DIS;
   forceUpdateAll = true;
 
   showPoint = true;
@@ -34,6 +34,7 @@ void CountDown::initDisMode()
 // 初始化设置模式数据
 void CountDown::initSetMode()
 {
+  mode = COUNT_DOWN_MODE_SET;
   forceUpdateAll = true;
   showPoint = false;
   setModeBaseMinute = minute;
@@ -50,9 +51,7 @@ void CountDown::update()
   // 双击切换模式
   if (isBtnDoubleClicked())
   {
-    mode ^= 0x1; // 取反切换模式
-
-    if (mode == COUNT_DOWN_MODE_DIS)
+    if (mode == COUNT_DOWN_MODE_SET)
     {
       // 设置模式转为显示模式，根据设置设置目标倒计时秒数
       totalSeconds = minute * 60 + second;

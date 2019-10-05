@@ -8,18 +8,19 @@
 
 Clock::Clock()
 {
-  mode = CLOCK_MODE_DIS; // 默认处于显示状态
   initDisMode();
 }
 
 void Clock::initDisMode()
 {
+  mode = CLOCK_MODE_DIS;
   forceUpdateAll = true;
   Serial.println("[CLOCK] enter display mode");
 }
 
 void Clock::initSetMode()
 {
+  mode = CLOCK_MODE_SET;
   forceUpdateAll = true;
   showPoint = false;                             // 设置模式冒号不闪烁
   setModeBaseHour = hour;                        // 记录进入设置模式时的初始小时
@@ -36,9 +37,7 @@ void Clock::update()
   // 双击切换模式
   if (isBtnDoubleClicked())
   {
-    mode ^= 0x1; // 取反切换模式
-
-    if (mode == CLOCK_MODE_DIS)
+    if (mode == CLOCK_MODE_SET)
     {
       // 由设置模式进入显示模式，设置新时间
       setISRTimeSecond(hour * 3600 + minute * 60);
