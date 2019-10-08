@@ -41,6 +41,7 @@ void Clock::update()
     {
       // 由设置模式进入显示模式，设置新时间
       setISRTimeSecond(hour * 3600 + minute * 60);
+      delay(50);
       initDisMode();
     }
     else
